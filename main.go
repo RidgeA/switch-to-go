@@ -5,8 +5,17 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"os"
 )
 
+var port string
+
+func init() {
+	port = os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+}
 
 func main() {
 
@@ -16,5 +25,5 @@ func main() {
 
 	http.Handle("/", r)
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
