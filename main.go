@@ -20,7 +20,7 @@ func init() {
 func main() {
 
 	r := mux.NewRouter()
-	r.HandleFunc("/", handlers.Main)
+	r.HandleFunc("/", handlers.Index)
 	r.HandleFunc("/materials", handlers.Materials)
 
 	http.Handle("/", r)
