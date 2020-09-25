@@ -15,16 +15,19 @@ func Materials(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = fmt.Fprintf(w, "can not read file: %s", err)
+		return
 	}
 
 	var links []string
 	if err := json.Unmarshal(content, &links); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = fmt.Fprintf(w, "can not parse file: %s", err)
+		return
 	}
 
 	if err := materialsTemplate.Execute(w, links); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = fmt.Fprintf(w, "error: %s", err)
+		return
 	}
 }
