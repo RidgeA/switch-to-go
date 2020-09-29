@@ -1,33 +1,34 @@
 package handlers
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
+	"github.com/RidgeA/switch-to-go/db/models"
 	"html/template"
-	"io/ioutil"
 	"net/http"
+)
+
+type (
+	MaterialsGetter interface {
+		GetMaterials(ctx context.Context) ([]models.Material, error)
+	}
 )
 
 var materialsTemplate = template.Must(template.New("materials.gohtml").ParseFiles("./views/materials.gohtml"))
 
-func Materials(w http.ResponseWriter, r *http.Request) {
-	content, err := ioutil.ReadFile("./data/materials-second-module.json")
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = fmt.Fprintf(w, "can not read file: %s", err)
-		return
-	}
+func Materials(materials MaterialsGetter) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		links, err := materials.GetMaterials(r.Context())
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = fmt.Fprintf(w, "can not get list of materials: %s", err)
+			return
+		}
 
-	var links []string
-	if err := json.Unmarshal(content, &links); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = fmt.Fprintf(w, "can not parse file: %s", err)
-		return
-	}
-
-	if err := materialsTemplate.Execute(w, links); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = fmt.Fprintf(w, "error: %s", err)
-		return
+		if err := materialsTemplate.Execute(w, links); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = fmt.Fprintf(w, "error: %s", err)
+			return
+		}
 	}
 }
