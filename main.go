@@ -1,11 +1,14 @@
 package main
 
 import (
+	"github.com/RidgeA/switch-to-go/cache"
 	"github.com/RidgeA/switch-to-go/handlers"
+	"github.com/RidgeA/switch-to-go/middlewares"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 var port string
@@ -19,9 +22,16 @@ func init() {
 
 func main() {
 
+	logger := middlewares.NewLogger(log.New(os.Stdout, "[s2go]", 0))
+
+	//todo: move to config
+	duration, _ := time.ParseDuration("5s")
+	storage := cache.NewMemoryCache(duration)
+	cacher := middlewares.NewCacher(storage)
+
 	r := mux.NewRouter()
-	r.HandleFunc("/", handlers.Index)
-	r.HandleFunc("/materials", handlers.Materials)
+	r.HandleFunc("/", logger(handlers.Index))
+	r.HandleFunc("/materials", logger(cacher(handlers.Materials)))
 
 	http.Handle("/", r)
 
