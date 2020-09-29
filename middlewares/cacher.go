@@ -40,11 +40,12 @@ func (bc *responseCacher) WriteHeader(status int) {
 }
 
 func (bc responseCacher) Cache() ResponseCacheEntry {
-	return ResponseCacheEntry{
-		Body:    bc.body.Bytes(),
-		Status:  bc.status,
-		Headers: bc.Header().Clone(),
+	rce := ResponseCacheEntry{Status: bc.status, Headers: bc.Header().Clone()}
+
+	if bc.body != nil {
+		rce.Body = bc.body.Bytes()
 	}
+	return rce
 }
 
 func NewCacher(c Cache) Middleware {
@@ -57,7 +58,6 @@ func NewCacher(c Cache) Middleware {
 				if !ok {
 					c.Del(key)
 				} else {
-					fmt.Println("Cache hit")
 					returnCachedResponse(cachedResponse, res)
 					return
 				}
