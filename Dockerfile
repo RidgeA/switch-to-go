@@ -7,7 +7,7 @@ COPY . .
 
 RUN go get -d -v
 
-RUN tree && go generate && go build -o /go/bin/switch2go
+RUN go generate && go build -o /go/bin/switch2go
 
 # todo: scratch, user
 FROM alpine
