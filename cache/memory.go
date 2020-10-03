@@ -22,6 +22,7 @@ func NewMemoryCache(duration time.Duration) *MemoryCache {
 	//todo gc
 	mc := &MemoryCache{}
 	mc.storage = make(map[string]cacheEntry)
+	mc.duration = duration
 	return mc
 }
 
@@ -33,7 +34,7 @@ func (mc *MemoryCache) Get(key string) (interface{}, bool) {
 	if !exist {
 		return nil, false
 	}
-	if v.expire.After(time.Now()) {
+	if v.expire.Before(time.Now()) {
 		delete(mc.storage, key)
 		return nil, false
 	}

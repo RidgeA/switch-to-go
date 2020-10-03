@@ -78,7 +78,7 @@ func reqKey(req *http.Request) string {
 
 func returnCachedResponse(cacheEntity ResponseCacheEntry, res http.ResponseWriter) {
 	res.WriteHeader(cacheEntity.Status)
-	for key, values := range res.Header() {
+	for key, values := range cacheEntity.Headers {
 		for _, value := range values {
 			res.Header().Add(key, value)
 		}

@@ -1,9 +1,12 @@
 package main
 
+//go:generate go test -cover -coverprofile=./_coverage/coverage.out ./...
+//go:generate go tool cover -html=./_coverage/coverage.out -o ./_coverage/index.html
+
 import (
 	"context"
 	"github.com/RidgeA/switch-to-go/cache"
-	"github.com/RidgeA/switch-to-go/db/models"
+	"github.com/RidgeA/switch-to-go/db/repository"
 	"github.com/RidgeA/switch-to-go/handlers"
 	"github.com/RidgeA/switch-to-go/middlewares"
 	"github.com/gorilla/mux"
@@ -40,7 +43,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("cannot connect to a DB: %s", err.Error())
 	}
-	materialsRepository := models.NewMaterialRepository(conn)
+	materialsRepository := repository.NewMaterialRepository(conn)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/",
@@ -57,6 +60,8 @@ func main() {
 			),
 		),
 	)
+
+	r.Handle("/_coverage/", http.StripPrefix("/_coverage/", http.FileServer(http.Dir("_coverage"))))
 
 	http.Handle("/", r)
 
