@@ -18,7 +18,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build and Deploy to Heroku
-        uses: gonuit/heroku-docker-deploy@v1.1.0
+        uses: gonuit/heroku-docker-deploy@v1.2.0
         with:
 
           # Below you must provide variables for your Heroku app.
