@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"fmt"
 	"testing"
 	"time"
 )
@@ -80,5 +81,42 @@ func TestMemoryCache_Del(t *testing.T) {
 	got2, exists := mc.Get(key)
 	if got2 != nil || exists {
 		t.Errorf("expect value not exits after calling 'Del', got: %s, %t", got2, exists)
+	}
+}
+
+func ExampleNewMemoryCache() {
+	d := 100 * time.Millisecond
+	key := "Hello"
+	value := "World"
+
+	cache := NewMemoryCache(d)
+
+	// Save some key-value pair to cache
+	cache.Set(key, value)
+
+	// Get value by key
+	getValue, exists := cache.Get(key)
+	fmt.Printf("Exists: %t, value: %s\n", exists, getValue)
+
+	// Delete value by key
+	cache.Del(key)
+	_, exists = cache.Get(key)
+	fmt.Printf("Exists: %t\n", exists)
+
+	// Output:
+	// Exists: true, value: World
+	// Exists: false
+}
+
+func BenchmarkMemoryCache_Get(b *testing.B) {
+	d := time.Hour
+	key := "Hello"
+	value := "World"
+
+	mc := NewMemoryCache(d)
+	mc.Set(key, value)
+
+	for i := 0; i < b.N; i++ {
+		mc.Get(key)
 	}
 }
