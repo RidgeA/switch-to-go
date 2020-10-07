@@ -22,43 +22,71 @@ func (m mockMaterialsGetter) GetMaterials(ctx context.Context) ([]repository.Mat
 	return nil, m.responseErr
 }
 
-func TestMaterials_Success(t *testing.T) {
+func TestMaterials2(t *testing.T) {
 
-	r := httptest.NewRequest("GET", "/materials", nil)
-	w := httptest.NewRecorder()
-	url := "https://example.com"
-	handler := Materials(mockMaterialsGetter{
-		response: []repository.Material{{Url: url}},
-	})
-
-	handler(w, r)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("expected status %d, got: %d", http.StatusOK, w.Code)
+	type args struct {
+		w      *httptest.ResponseRecorder
+		r      *http.Request
+		getter MaterialsGetter
 	}
-
-	body := w.Body.String()
-	if !strings.Contains(body, url) {
-		t.Errorf("expected body to contain url '%s'", url)
+	type expected struct {
+		status int
+		body   string
 	}
-}
+	tests := []struct {
+		name string
+		args args
+		expected
+	}{
+		{
+			name: "success",
 
-func TestMaterials_Error(t *testing.T) {
-	r := httptest.NewRequest("GET", "/materials", nil)
-	w := httptest.NewRecorder()
-	expectedBody := "can not get list of materials: some error"
-	responseErr := errors.New("some error")
-	handler := Materials(mockMaterialsGetter{
-		responseErr: responseErr,
-	})
+			args: args{
+				httptest.NewRecorder(),
+				httptest.NewRequest("GET", "/materials", nil),
+				mockMaterialsGetter{
+					response: []repository.Material{{Url: "https://example.com"},
+					},
+				},
+			},
 
-	handler(w, r)
+			expected: expected{
+				http.StatusOK,
+				"https://example.com",
+			},
+		},
+		{
+			name: "error",
 
-	if w.Code != http.StatusInternalServerError {
-		t.Errorf("expected status %d, got: %d", http.StatusInternalServerError, w.Code)
+			args: args{
+				httptest.NewRecorder(),
+				httptest.NewRequest("GET", "/materials", nil),
+				mockMaterialsGetter{
+					responseErr: errors.New("some error"),
+				},
+			},
+
+			expected: expected{
+				http.StatusInternalServerError,
+				"some error",
+			},
+		},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
 
-	if w.Body.String() != expectedBody {
-		t.Errorf("expected body to be equal '%s'", expectedBody)
+			handler := Materials(tt.args.getter)
+
+			handler(tt.args.w, tt.args.r)
+
+			if tt.args.w.Code != tt.expected.status {
+				t.Errorf("expected status %d, got: %d", tt.expected.status, tt.args.w.Code)
+			}
+
+			body := tt.args.w.Body.String()
+			if !strings.Contains(body, tt.expected.body) {
+				t.Errorf("expected body to contain url '%s'", tt.expected.body)
+			}
+		})
 	}
 }
