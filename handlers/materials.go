@@ -14,7 +14,7 @@ type (
 	}
 )
 
-var materialsHtml = `
+const materialsHtml = `
 <!doctype html>
 <html lang="en">
 <head>
