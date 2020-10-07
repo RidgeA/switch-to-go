@@ -17,8 +17,7 @@ type (
 )
 
 func NewMaterialRepository(conn *pgx.Conn) *MaterialRepository {
-	mr := &MaterialRepository{conn}
-	return mr
+	return &MaterialRepository{conn}
 }
 
 func (mr MaterialRepository) GetMaterials(ctx context.Context) ([]Material, error) {
