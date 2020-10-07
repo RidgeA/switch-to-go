@@ -3,6 +3,7 @@ package middlewares
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -84,7 +85,9 @@ func returnCachedResponse(cacheEntity ResponseCacheEntry, res http.ResponseWrite
 		}
 	}
 	if cacheEntity.Body != nil {
-		_, _ = res.Write(cacheEntity.Body)
+		if _, err := res.Write(cacheEntity.Body); err != nil {
+			log.Printf("Failed to write response body %s", err.Error())
+		}
 	}
 }
 
