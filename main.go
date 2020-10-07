@@ -20,16 +20,21 @@ import (
 var port string
 var databaseUrl string
 
-func init() {
+func initOptions() {
 	port = os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
 	databaseUrl = os.Getenv("DATABASE_URL")
+	if databaseUrl == "" {
+		log.Fatal("DATABASE_URL environment variable required")
+	}
 }
 
 func main() {
+
+	initOptions()
 
 	logger := middlewares.NewLogger(log.New(os.Stdout, "[s2go]", 0))
 
