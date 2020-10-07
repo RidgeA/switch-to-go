@@ -12,7 +12,7 @@ type (
 	}
 
 	MemoryCache struct {
-		sync.Mutex
+		sync.RWMutex
 		duration time.Duration
 		storage  map[string]cacheEntry
 	}
@@ -27,8 +27,8 @@ func NewMemoryCache(duration time.Duration) *MemoryCache {
 }
 
 func (mc *MemoryCache) Get(key string) (interface{}, bool) {
-	mc.Lock()
-	defer mc.Unlock()
+	mc.RLock()
+	defer mc.RUnlock()
 
 	v, exist := mc.storage[key]
 	if !exist {
